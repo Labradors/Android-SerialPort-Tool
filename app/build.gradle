@@ -4,6 +4,24 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+
+
+    signingConfigs {
+        release {
+            storeFile file("./libs/app.keystore")
+            storePassword '123456'
+            keyAlias 'app'
+            keyPassword '123456'
+        }
+
+        debug {
+            storeFile file("./libs/app.keystore")
+            storePassword '123456'
+            keyAlias 'app'
+            keyPassword '123456'
+        }
+    }
+
     defaultConfig {
         applicationId "com.licheedev.serialtool"
         minSdkVersion rootProject.ext.minSdkVersion

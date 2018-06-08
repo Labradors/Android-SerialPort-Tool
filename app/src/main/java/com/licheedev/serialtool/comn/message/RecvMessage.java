@@ -1,5 +1,7 @@
 package com.licheedev.serialtool.comn.message;
 
+import android.util.Log;
+
 import com.licheedev.serialtool.util.TimeUtil;
 
 /**
@@ -14,6 +16,7 @@ public class RecvMessage implements IMessage {
     public RecvMessage(String command) {
         this.command = command;
         this.message = TimeUtil.currentTime() + "    收到命令：" + command;
+        Log.d("-------------", "RecvMessage: "+message);
     }
 
     @Override

@@ -1,9 +1,13 @@
 package com.licheedev.serialtool.activity;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.UserHandle;
+import android.serialport.SerialPort;
 import android.serialport.SerialPortFinder;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -20,6 +24,8 @@ import com.licheedev.serialtool.util.AllCapTransformationMethod;
 import com.licheedev.serialtool.util.PrefHelper;
 import com.licheedev.serialtool.util.ToastUtil;
 import com.licheedev.serialtool.util.constant.PreferenceKeys;
+
+import java.util.Timer;
 
 import static com.licheedev.serialtool.R.array.baudrates;
 
@@ -53,7 +59,6 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         super.onCreate(savedInstanceState);
 
         mEtData.setTransformationMethod(new AllCapTransformationMethod(true));
-
         initDevice();
         initSpinners();
         updateViewState(mOpened);
@@ -79,7 +84,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
      * 初始化设备列表
      */
     private void initDevice() {
-
+        SerialPort.setSuPath("/system/xbin/su");
         SerialPortFinder serialPortFinder = new SerialPortFinder();
 
         // 设备
@@ -89,6 +94,9 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                 getString(R.string.no_serial_device)
             };
         }
+        for (String path:mDevices){
+            Log.d("mdzz-----",path);
+        }
         // 波特率
         mBaudrates = getResources().getStringArray(baudrates);
 
@@ -97,6 +105,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         mBaudrateIndex = PrefHelper.getDefault().getInt(PreferenceKeys.BAUD_RATE, 0);
 
         mDevice = new Device(mDevices[mDeviceIndex], mBaudrates[mBaudrateIndex]);
+        switchSerialPort();
     }
 
     /**
@@ -105,13 +114,13 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     private void initSpinners() {
 
         ArrayAdapter<String> deviceAdapter =
-            new ArrayAdapter<String>(this, R.layout.spinner_default_item, mDevices);
+                new ArrayAdapter<>(this, R.layout.spinner_default_item, mDevices);
         deviceAdapter.setDropDownViewResource(R.layout.spinner_item);
         mSpinnerDevices.setAdapter(deviceAdapter);
         mSpinnerDevices.setOnItemSelectedListener(this);
 
         ArrayAdapter<String> baudrateAdapter =
-            new ArrayAdapter<String>(this, R.layout.spinner_default_item, mBaudrates);
+                new ArrayAdapter<>(this, R.layout.spinner_default_item, mBaudrates);
         baudrateAdapter.setDropDownViewResource(R.layout.spinner_item);
         mSpinnerBaudrate.setAdapter(baudrateAdapter);
         mSpinnerBaudrate.setOnItemSelectedListener(this);
@@ -162,8 +171,10 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             mOpened = SerialPortManager.instance().open(mDevice) != null;
             if (mOpened) {
                 ToastUtil.showOne(this, "成功打开串口");
+                Log.d("----串口----","成功打开串口");
             } else {
                 ToastUtil.showOne(this, "打开串口失败");
+                Log.d("----串口----","打开串口失败");
             }
         }
         updateViewState(mOpened);
